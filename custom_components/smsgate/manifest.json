@@ -1,0 +1,17 @@
+{
+  "domain": "smsgate",
+  "name": "SMSGateway",
+  "codeowners": [
+    "@Micka41"
+  ],
+  "config_flow": true,
+  "dependencies": [
+    "webhook"
+  ],
+  "documentation": "https://github.com/Micka41/ha-smsgateway",
+  "integration_type": "service",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/Micka41/ha-smsgateway/issues",
+  "requirements": [],
+  "version": "2026.9.1"
+}

@@ -1,0 +1,192 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connessione a SMS Gateway for Android",
+        "description": "Inserire i parametri del Local Server mostrati nell'app.",
+        "data": {
+          "host": "Host",
+          "port": "Porta",
+          "username": "Nome utente",
+          "password": "Password",
+          "message_path": "Endpoint di invio"
+        },
+        "data_description": {
+          "message_path": "L'endpoint documentato è /messages. Le versioni precedenti espongono solo /message; l'integrazione passa automaticamente se necessario."
+        }
+      },
+      "reauth_confirm": {
+        "title": "Aggiorna le credenziali",
+        "data": {
+          "username": "Nome utente",
+          "password": "Password"
+        }
+      },
+      "reconfigure": {
+        "title": "Modifica la connessione al gateway",
+        "description": "Aggiornare indirizzo, porta o credenziali. Le entità e la loro cronologia sono conservate.",
+        "data": {
+          "host": "Host",
+          "port": "Porta",
+          "username": "Nome utente",
+          "password": "Password",
+          "message_path": "Endpoint di invio"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Gateway irraggiungibile. Verificare indirizzo IP, porta e che il Local Server sia avviato.",
+      "invalid_auth": "Credenziali rifiutate dal Local Server.",
+      "unknown": "Errore imprevisto.",
+      "unsupported_version": "L'app segnala la versione {version}, ma è richiesta almeno la {minimum}: l'invio MMS non esiste nelle versioni precedenti."
+    },
+    "abort": {
+      "already_configured": "Questo gateway è già configurato.",
+      "reauth_successful": "Credenziali aggiornate.",
+      "reconfigure_successful": "Connessione al gateway aggiornata."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Opzioni SMSGateway",
+        "data": {
+          "default_recipient": "Destinatario predefinito",
+          "media_dir": "Cartella degli allegati",
+          "keep_attachments": "Allegati da conservare",
+          "webhook_url": "URL webhook forzato",
+          "check_updates": "Cerca aggiornamenti dell'app",
+          "signing_key": "Chiave di firma dei webhook"
+        },
+        "data_description": {
+          "default_recipient": "Crea un'entità notify che invia a questo numero.",
+          "media_dir": "Relativa alla cartella di configurazione.",
+          "webhook_url": "Lasciare vuoto per usare l'URL esterno di Home Assistant. Deve essere HTTPS per la build sicura dell'app.",
+          "check_updates": "Interroga la pagina delle release GitHub ogni 12 ore. È l'unica chiamata in uscita dell'integrazione — disattivarla per restare completamente locale.",
+          "signing_key": "Nell'app, Impostazioni > Webhooks > Signing Key. Se impostata, i webhook con firma HMAC-SHA256 non corrispondente vengono rifiutati. Lasciare vuoto per accettare richieste non firmate."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "available": {
+        "name": "Disponibile"
+      },
+      "internet": {
+        "name": "Connessione Internet"
+      },
+      "charging": {
+        "name": "In carica"
+      }
+    },
+    "image": {
+      "last_mms_image": {
+        "name": "Ultima immagine MMS"
+      }
+    },
+    "notify": {
+      "sms": {
+        "name": "SMS"
+      }
+    },
+    "sensor": {
+      "last_sms": {
+        "name": "Ultimo SMS"
+      },
+      "last_mms": {
+        "name": "Ultimo MMS"
+      },
+      "last_status": {
+        "name": "Ultimo stato di invio"
+      },
+      "battery": {
+        "name": "Batteria"
+      },
+      "failed_messages": {
+        "name": "Messaggi non riusciti"
+      }
+    },
+    "update": {
+      "app": {
+        "name": "App"
+      }
+    }
+  },
+  "services": {
+    "send_sms": {
+      "name": "Invia SMS",
+      "description": "Invia un messaggio di testo tramite il gateway.",
+      "fields": {
+        "recipients": {
+          "name": "Destinatari",
+          "description": "Uno o più numeri."
+        },
+        "message": {
+          "name": "Messaggio",
+          "description": "Contenuto testuale."
+        },
+        "priority": {
+          "name": "Priorità",
+          "description": "Da 100 in su aggira i limiti di frequenza."
+        },
+        "sim": {
+          "name": "SIM",
+          "description": "Slot SIM da usare."
+        },
+        "ttl": {
+          "name": "TTL",
+          "description": "Scadenza in secondi."
+        },
+        "config_entry_id": {
+          "name": "Gateway",
+          "description": "Gateway da usare."
+        }
+      }
+    },
+    "send_mms": {
+      "name": "Invia MMS",
+      "description": "Invia un messaggio multimediale con uno o più allegati.",
+      "fields": {
+        "recipients": {
+          "name": "Destinatari",
+          "description": "Uno o più numeri."
+        },
+        "attachments": {
+          "name": "Allegati",
+          "description": "Percorsi assoluti, in una cartella consentita."
+        },
+        "message": {
+          "name": "Messaggio",
+          "description": "Corpo del testo, opzionale."
+        },
+        "subject": {
+          "name": "Oggetto",
+          "description": "Oggetto, opzionale."
+        },
+        "priority": {
+          "name": "Priorità",
+          "description": "Da 100 in su aggira i limiti di frequenza."
+        },
+        "sim": {
+          "name": "SIM",
+          "description": "Slot SIM da usare."
+        },
+        "ttl": {
+          "name": "TTL",
+          "description": "Scadenza in secondi."
+        },
+        "config_entry_id": {
+          "name": "Gateway",
+          "description": "Gateway da usare."
+        }
+      }
+    }
+  },
+  "issues": {
+    "webhook_url_unavailable": {
+      "title": "SMSGateway: nessun URL webhook HTTPS",
+      "description": "La build sicura dell'app SMS Gateway accetta solo URL webhook serviti in HTTPS con certificato valido: un indirizzo interno http:// o un IP nudo viene rifiutato.\n\nImpostare un URL esterno in Impostazioni > Sistema > Rete, oppure compilare l'URL webhook forzato nelle opzioni di SMSGateway. L'invio continua a funzionare; sono interessate solo la ricezione di SMS e MMS."
+    }
+  }
+}

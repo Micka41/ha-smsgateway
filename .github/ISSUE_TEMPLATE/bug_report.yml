@@ -1,0 +1,55 @@
+name: Bug report
+description: Signaler un dysfonctionnement de l'intégration SMSGateway
+labels: [bug]
+body:
+  - type: input
+    id: ha_version
+    attributes:
+      label: Version de Home Assistant
+      placeholder: "2026.9.0"
+    validations:
+      required: true
+
+  - type: input
+    id: app_version
+    attributes:
+      label: Version de l'application SMS Gateway for Android
+      description: "1.74.1 minimum — l'envoi MMS n'existe pas avant."
+      placeholder: "1.74.1"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: build
+    attributes:
+      label: Build de l'application
+      options:
+        - secure
+        - insecure
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      placeholder: Que s'est-il passé ? Qu'attendiez-vous ?
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Journaux
+      description: |
+        Activer le mode debug dans configuration.yaml :
+        ```yaml
+        logger:
+          logs:
+            custom_components.smsgate: debug
+        ```
+        Attention : les journaux debug contiennent le contenu des messages.
+        Anonymiser avant publication.
+      render: text
+    validations:
+      required: false

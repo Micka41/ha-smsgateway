@@ -1,0 +1,192 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to SMS Gateway for Android",
+        "description": "Enter the Local Server details shown in the app.",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "username": "Username",
+          "password": "Password",
+          "message_path": "Send endpoint"
+        },
+        "data_description": {
+          "message_path": "Documented endpoint is /messages. Older app versions only expose /message; the integration switches automatically if needed."
+        }
+      },
+      "reauth_confirm": {
+        "title": "Update credentials",
+        "data": {
+          "username": "Username",
+          "password": "Password"
+        }
+      },
+      "reconfigure": {
+        "title": "Change gateway connection",
+        "description": "Update the address, port or credentials. Entities and their history are kept.",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "username": "Username",
+          "password": "Password",
+          "message_path": "Send endpoint"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Gateway unreachable. Check the IP address, the port and that Local Server is running.",
+      "invalid_auth": "Credentials rejected by the Local Server.",
+      "unknown": "Unexpected error.",
+      "unsupported_version": "The app reports version {version}, but {minimum} or later is required: MMS sending does not exist in earlier versions."
+    },
+    "abort": {
+      "already_configured": "This gateway is already configured.",
+      "reauth_successful": "Credentials updated.",
+      "reconfigure_successful": "Gateway connection updated."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "SMSGateway options",
+        "data": {
+          "default_recipient": "Default recipient",
+          "media_dir": "Attachment folder",
+          "keep_attachments": "Attachments to keep",
+          "webhook_url": "Webhook URL override",
+          "check_updates": "Check for app updates",
+          "signing_key": "Webhook signing key"
+        },
+        "data_description": {
+          "default_recipient": "Creates a notify entity that sends to this number.",
+          "media_dir": "Relative to the configuration folder.",
+          "webhook_url": "Leave empty to use the Home Assistant external URL. Must be HTTPS with a valid certificate: the secure app build rejects http:// and bare IP addresses.",
+          "check_updates": "Queries the GitHub releases page every 12 hours. This is the integration's only outbound call — disable it to stay fully local.",
+          "signing_key": "From the app, Settings > Webhooks > Signing Key. When set, incoming webhooks whose HMAC-SHA256 signature does not match are rejected. Leave empty to accept unsigned requests."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "available": {
+        "name": "Available"
+      },
+      "internet": {
+        "name": "Internet connection"
+      },
+      "charging": {
+        "name": "Charging"
+      }
+    },
+    "image": {
+      "last_mms_image": {
+        "name": "Last MMS image"
+      }
+    },
+    "notify": {
+      "sms": {
+        "name": "SMS"
+      }
+    },
+    "sensor": {
+      "last_sms": {
+        "name": "Last SMS"
+      },
+      "last_mms": {
+        "name": "Last MMS"
+      },
+      "last_status": {
+        "name": "Last send status"
+      },
+      "battery": {
+        "name": "Battery"
+      },
+      "failed_messages": {
+        "name": "Failed messages"
+      }
+    },
+    "update": {
+      "app": {
+        "name": "App"
+      }
+    }
+  },
+  "services": {
+    "send_sms": {
+      "name": "Send SMS",
+      "description": "Send a text message through the gateway.",
+      "fields": {
+        "recipients": {
+          "name": "Recipients",
+          "description": "One or more phone numbers."
+        },
+        "message": {
+          "name": "Message",
+          "description": "Text content."
+        },
+        "priority": {
+          "name": "Priority",
+          "description": "100 or above bypasses rate limits."
+        },
+        "sim": {
+          "name": "SIM",
+          "description": "SIM slot to use."
+        },
+        "ttl": {
+          "name": "TTL",
+          "description": "Expiry in seconds."
+        },
+        "config_entry_id": {
+          "name": "Gateway",
+          "description": "Which gateway to use."
+        }
+      }
+    },
+    "send_mms": {
+      "name": "Send MMS",
+      "description": "Send a multimedia message with one or more attachments.",
+      "fields": {
+        "recipients": {
+          "name": "Recipients",
+          "description": "One or more phone numbers."
+        },
+        "attachments": {
+          "name": "Attachments",
+          "description": "Absolute paths, inside an allowed folder."
+        },
+        "message": {
+          "name": "Message",
+          "description": "Optional text body."
+        },
+        "subject": {
+          "name": "Subject",
+          "description": "Optional subject."
+        },
+        "priority": {
+          "name": "Priority",
+          "description": "100 or above bypasses rate limits."
+        },
+        "sim": {
+          "name": "SIM",
+          "description": "SIM slot to use."
+        },
+        "ttl": {
+          "name": "TTL",
+          "description": "Expiry in seconds."
+        },
+        "config_entry_id": {
+          "name": "Gateway",
+          "description": "Which gateway to use."
+        }
+      }
+    }
+  },
+  "issues": {
+    "webhook_url_unavailable": {
+      "title": "SMSGateway: no HTTPS webhook URL",
+      "description": "The secure build of the SMS Gateway app only accepts webhook URLs served over HTTPS with a valid certificate, so an internal http:// address or a bare IP is rejected.\n\nSet an external URL in Settings > System > Network, or fill in the webhook URL override in the SMSGateway options. Sending messages keeps working; only inbound SMS and MMS are affected."
+    }
+  }
+}

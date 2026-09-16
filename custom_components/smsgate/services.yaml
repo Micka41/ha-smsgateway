@@ -1,0 +1,81 @@
+send_sms:
+  fields:
+    recipients:
+      required: true
+      example: "+33612345678 ou {MICKA}"
+      selector:
+        text:
+          multiple: true
+    message:
+      required: true
+      selector:
+        text:
+          multiline: true
+    priority:
+      selector:
+        number:
+          min: -128
+          max: 127
+          mode: box
+    sim:
+      selector:
+        number:
+          min: 1
+          max: 3
+          mode: box
+    ttl:
+      selector:
+        number:
+          min: 60
+          max: 604800
+          mode: box
+          unit_of_measurement: s
+    config_entry_id:
+      selector:
+        config_entry:
+          integration: smsgate
+
+send_mms:
+  fields:
+    recipients:
+      required: true
+      example: "+33612345678 ou {MICKA}"
+      selector:
+        text:
+          multiple: true
+    attachments:
+      required: true
+      example: "/config/media/snapshots/poulailler.jpg"
+      selector:
+        text:
+          multiple: true
+    message:
+      selector:
+        text:
+          multiline: true
+    subject:
+      selector:
+        text:
+    priority:
+      selector:
+        number:
+          min: -128
+          max: 127
+          mode: box
+    sim:
+      selector:
+        number:
+          min: 1
+          max: 3
+          mode: box
+    ttl:
+      selector:
+        number:
+          min: 60
+          max: 604800
+          mode: box
+          unit_of_measurement: s
+    config_entry_id:
+      selector:
+        config_entry:
+          integration: smsgate

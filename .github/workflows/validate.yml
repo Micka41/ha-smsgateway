@@ -1,0 +1,34 @@
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Exigé pour la soumission HACS : les actions doivent avoir tourné
+  # récemment, et un dépôt sans commit resterait sans run vert.
+  schedule:
+    - cron: "0 4 * * 1"
+  workflow_dispatch:
+
+jobs:
+  hacs:
+    name: HACS validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: HACS Action
+        uses: hacs/action@main
+        with:
+          category: integration
+          # Aucun check désactivé : la soumission exige des actions vertes
+          # sans exclusion. Le check "brands" impose donc que la PR sur
+          # home-assistant/brands soit fusionnée AVANT la soumission HACS.
+
+  hassfest:
+    name: hassfest validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: hassfest
+        uses: home-assistant/actions/hassfest@master
