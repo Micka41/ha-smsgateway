@@ -57,9 +57,17 @@ git push origin 2026.09.1
 
 Puis **Releases → Draft a new release**, choisir le tag, publier.
 
-Le numéro de version de `custom_components/smsgate/manifest.json` doit
-correspondre au tag. Format calendaire recommandé, comme sur
-`bwt-aqa-perla-ble`.
+Le workflow `release.yml` se déclenche à la publication : il aligne
+automatiquement `version` dans `manifest.json` sur le tag, construit
+`smsgate.zip` et l'attache à la release. Plus de désynchronisation possible
+entre le tag et le manifest.
+
+`hacs.json` déclare `zip_release` et `filename` : HACS installe donc l'archive
+plutôt que de cloner le dépôt. Les utilisateurs ne téléchargent que le
+composant, sans les tests ni la documentation.
+
+Format de tag calendaire recommandé, comme sur `bwt-aqa-perla-ble`. Un `v`
+initial est accepté, le workflow le retire pour le manifest.
 
 **La release doit être créée après que les actions soient passées au vert**,
 c'est un point explicite de la checklist.

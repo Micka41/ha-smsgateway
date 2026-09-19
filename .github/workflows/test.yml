@@ -1,0 +1,46 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  pytest:
+    name: pytest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          set -euo pipefail
+          echo "1️⃣  Installation"
+          python -m pip install --upgrade pip
+          pip install -r requirements-test.txt
+          echo "   ✅ $(python -c 'import homeassistant; print(homeassistant.const.__version__)' 2>/dev/null || echo 'Home Assistant installé')"
+
+      - name: Expose the integration to the harness
+        run: |
+          set -euo pipefail
+          echo "2️⃣  Mise en place"
+          # Le harnais charge les intégrations depuis le config dir du plugin ;
+          # on y place le composant plutôt que de dupliquer l'arborescence.
+          TARGET=$(python -c "from pytest_homeassistant_custom_component.common import get_test_config_dir; print(get_test_config_dir())")
+          mkdir -p "$TARGET/custom_components"
+          cp -r custom_components/smsgate "$TARGET/custom_components/"
+          echo "   ✅ $TARGET/custom_components/smsgate"
+
+      - name: Run the tests
+        run: |
+          set -euo pipefail
+          echo "3️⃣  Exécution"
+          # --timeout : un test bloqué doit échouer, pas figer le job.
+          python -m pytest tests/ -v --timeout=60 --rootdir=.

@@ -1,0 +1,27 @@
+name: Feature request
+description: Suggest an improvement for the SMSGateway integration
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      placeholder: Describe the situation you run into, not only the solution you imagine.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: false
+
+  - type: input
+    id: api
+    attributes:
+      label: Relevant API endpoint or webhook event
+      description: "If the feature maps to something in the app's API, name it here."
+      placeholder: "POST /inbox/refresh"
+    validations:
+      required: false

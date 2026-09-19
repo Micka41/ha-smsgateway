@@ -1,11 +1,11 @@
 name: Bug report
-description: Signaler un dysfonctionnement de l'intégration SMSGateway
+description: Report a malfunction of the SMSGateway integration
 labels: [bug]
 body:
   - type: input
     id: ha_version
     attributes:
-      label: Version de Home Assistant
+      label: Home Assistant version
       placeholder: "2026.9.0"
     validations:
       required: true
@@ -13,8 +13,8 @@ body:
   - type: input
     id: app_version
     attributes:
-      label: Version de l'application SMS Gateway for Android
-      description: "1.74.1 minimum — l'envoi MMS n'existe pas avant."
+      label: SMS Gateway for Android version
+      description: "1.74.1 or later — MMS sending does not exist in earlier versions."
       placeholder: "1.74.1"
     validations:
       required: true
@@ -22,10 +22,22 @@ body:
   - type: dropdown
     id: build
     attributes:
-      label: Build de l'application
+      label: App build
       options:
         - secure
         - insecure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Gateway mode
+      options:
+        - Local Server
+        - Public Cloud
+        - Private Server
+      description: "The integration targets Local Server; other modes are untested."
     validations:
       required: true
 
@@ -33,23 +45,48 @@ body:
     id: description
     attributes:
       label: Description
-      placeholder: Que s'est-il passé ? Qu'attendiez-vous ?
+      placeholder: What happened? What did you expect instead?
     validations:
       required: true
 
   - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: false
+
+  - type: textarea
     id: logs
     attributes:
-      label: Journaux
+      label: Logs
       description: |
-        Activer le mode debug dans configuration.yaml :
+        Enable debug logging in `configuration.yaml`:
         ```yaml
         logger:
+          default: info
           logs:
             custom_components.smsgate: debug
+            homeassistant.components.webhook: debug
         ```
-        Attention : les journaux debug contiennent le contenu des messages.
-        Anonymiser avant publication.
+        Restart, reproduce the problem, then paste the relevant lines.
+
+        ⚠️ Debug logs contain the **text of your messages** and base64
+        attachments. Anonymise before posting, and switch back to `info`
+        afterwards.
       render: text
     validations:
       required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I removed `custom_components/smsgate/__pycache__` and restarted after upgrading
+        - label: My Home Assistant external URL is HTTPS with a valid certificate
+        - label: The app is set as the phone's default SMS app

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: SMS Gateway for Android
+    url: https://github.com/capcom6/android-sms-gateway/issues
+    about: Issues with the Android app itself — sending, receiving, permissions.
+  - name: API documentation
+    url: https://docs.sms-gate.app/
+    about: Endpoints, webhooks, authentication.

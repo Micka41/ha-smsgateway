@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  zip:
+    name: Build and attach ZIP
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Align manifest version with the tag
+        run: |
+          set -euo pipefail
+          TAG="${{ github.event.release.tag_name }}"
+          MANIFEST=custom_components/smsgate/manifest.json
+          echo "1️⃣  Tag : $TAG"
+          jq --arg v "${TAG#v}" '.version = $v' "$MANIFEST" > "$MANIFEST.tmp"
+          mv "$MANIFEST.tmp" "$MANIFEST"
+          echo "   ✅ $(jq -r .version "$MANIFEST")"
+
+      - name: Build the archive
+        run: |
+          set -euo pipefail
+          echo "2️⃣  Construction de smsgate.zip"
+          # Le contenu est zippé depuis l'intérieur du composant : HACS
+          # extrait l'archive dans custom_components/smsgate/, un dossier
+          # supplémentaire produirait custom_components/smsgate/smsgate/.
+          cd custom_components/smsgate
+          zip -r --exclude='*__pycache__*' --exclude='*.pyc' \
+              "${{ github.workspace }}/smsgate.zip" .
+          cd "${{ github.workspace }}"
+          echo "   ✅ $(unzip -l smsgate.zip | tail -1)"
+
+      - name: Check the archive layout
+        run: |
+          set -euo pipefail
+          echo "3️⃣  Vérification"
+          for f in manifest.json __init__.py brand/icon.png; do
+            if unzip -l smsgate.zip | grep -q " $f\$"; then
+              echo "   ✅ $f"
+            else
+              echo "   ❌ $f absent de l'archive" >&2
+              exit 1
+            fi
+          done
+          if unzip -l smsgate.zip | grep -q "custom_components/"; then
+            echo "   ❌ l'archive contient un niveau custom_components/ en trop" >&2
+            exit 1
+          fi
+          echo "   ✅ arborescence correcte"
+
+      - name: Attach to the release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: smsgate.zip

@@ -34,21 +34,21 @@ async def _installer(hass, tmp_path, secrets):
 
 async def test_sms_avec_alias(hass, tmp_path):
     await _installer(hass, tmp_path,
-                     'smsgate_micka: "+33612345678"\nlatitude: 47.6\n')
+                     'smsgate_papa: "+33612345678"\nlatitude: 47.6\n')
     envoye = AsyncMock(return_value={"id": "abc"})
     with patch("custom_components.smsgate.SmsGateApi.async_send_sms", new=envoye):
         await hass.services.async_call(
             "smsgate", "send_sms",
-            {"recipients": ["{MICKA}", "+33600000000"], "message": "Coucou"},
+            {"recipients": ["{PAPA}", "+33600000000"], "message": "Coucou"},
             blocking=True)
     assert envoye.call_args.kwargs["recipients"] == ["+33612345678", "+33600000000"]
-    print("\n✅ {MICKA} traduit depuis secrets.yaml")
+    print("\n✅ {PAPA} traduit depuis secrets.yaml")
 
 
 async def test_secret_non_prefixe_bloque(hass, tmp_path):
     """{LATITUDE} ne doit pas partir par SMS."""
     await _installer(hass, tmp_path,
-                     'smsgate_micka: "+33612345678"\nlatitude: 47.6\n')
+                     'smsgate_papa: "+33612345678"\nlatitude: 47.6\n')
     envoye = AsyncMock(return_value={"id": "abc"})
     with patch("custom_components.smsgate.SmsGateApi.async_send_sms", new=envoye):
         with pytest.raises(HomeAssistantError) as e:
