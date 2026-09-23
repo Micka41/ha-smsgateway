@@ -193,6 +193,20 @@ def _horodatage(body: dict[str, Any]) -> str:
     return dt_util.now().isoformat()
 
 
+def _champ(body: dict[str, Any], *noms: str) -> Any:
+    """Retourner le premier champ renseigné parmi plusieurs noms.
+
+    La documentation à paraître renomme ``phoneNumber`` en ``sender`` et
+    ``recipient`` selon le sens du message. En acceptant les deux, un même
+    code fonctionne avant et après la mise à jour de l'application.
+    """
+    for nom in noms:
+        valeur = body.get(nom)
+        if valeur is not None:
+            return valeur
+    return None
+
+
 def _normalise(payload: Any) -> list[dict[str, Any]]:
     """Ramener un payload simple ou groupé à une liste d'événements."""
     if isinstance(payload, dict):
@@ -335,11 +349,12 @@ async def _async_dispatch(
 
     if event == EVENT_SMS_RECEIVED:
         contenu = {
-            "sender": body.get("phoneNumber"),
+            "sender": _champ(body, "sender", "phoneNumber"),
             "message": body.get("message"),
             "sim": body.get("simNumber"),
             "received_at": _horodatage(body),
             "message_id": body.get("messageId"),
+            "device_id": item.get("deviceId"),
         }
         hass.bus.async_fire(HA_EVENT_SMS_RECEIVED, contenu)
         async_dispatcher_send(hass, SIGNAL_SMS_RECEIVED.format(entry.entry_id), contenu)
@@ -348,7 +363,7 @@ async def _async_dispatch(
         hass.bus.async_fire(
             HA_EVENT_MMS_NOTIFIED,
             {
-                "sender": body.get("sender"),
+                "sender": _champ(body, "sender", "phoneNumber"),
                 "subject": body.get("subject"),
                 "size": body.get("size"),
                 "content_class": body.get("contentClass"),
@@ -376,7 +391,7 @@ async def _async_dispatch(
         )
 
         contenu = {
-            "sender": body.get("sender"),
+            "sender": _champ(body, "sender", "phoneNumber"),
             "subject": body.get("subject"),
             "message": body.get("body"),
             "received_at": _horodatage(body),
@@ -393,7 +408,7 @@ async def _async_dispatch(
         contenu = {
             "state": etat,
             "message_id": message_id,
-            "recipient": body.get("phoneNumber"),
+            "recipient": _champ(body, "recipient", "phoneNumber"),
         }
         hass.bus.async_fire(HA_EVENT_STATUS, contenu)
         async_dispatcher_send(hass, SIGNAL_STATUS.format(entry.entry_id), contenu)
