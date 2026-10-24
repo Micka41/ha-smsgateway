@@ -321,7 +321,12 @@ class SmsGateOptionsFlow(OptionsFlow):
             # La purge supprime des fichiers dans ce dossier : il doit rester
             # dans le dossier de configuration de Home Assistant.
             dossier = nettoye.get(CONF_MEDIA_DIR, DEFAULT_MEDIA_DIR)
-            if media_dir_path(self.hass, dossier) is None:
+            if (
+                await self.hass.async_add_executor_job(
+                    media_dir_path, self.hass, dossier
+                )
+                is None
+            ):
                 errors[CONF_MEDIA_DIR] = "invalid_media_dir"
             else:
                 return self.async_create_entry(data=nettoye)

@@ -67,6 +67,10 @@ def media_dir_path(hass: HomeAssistant, relatif: str | None) -> str | None:
     L'option est un texte libre : un chemin absolu ou contenant ``..``
     pourrait viser n'importe quel dossier du système. On refuse tout ce qui
     sort de ``/config`` après résolution des liens symboliques.
+
+    E/S disque bloquantes (``realpath`` interroge chaque composant du
+    chemin) : à appeler via ``hass.async_add_executor_job``, jamais depuis
+    la boucle d'événements.
     """
     racine = os.path.realpath(hass.config.config_dir)
     cible = os.path.realpath(os.path.join(racine, relatif or ""))
@@ -395,8 +399,10 @@ async def _async_dispatch(
         )
 
     elif event == EVENT_MMS_DOWNLOADED:
-        media_dir = media_dir_path(
-            hass, entry.options.get(CONF_MEDIA_DIR, DEFAULT_MEDIA_DIR)
+        media_dir = await hass.async_add_executor_job(
+            media_dir_path,
+            hass,
+            entry.options.get(CONF_MEDIA_DIR, DEFAULT_MEDIA_DIR),
         )
         if media_dir is None:
             _LOGGER.warning(

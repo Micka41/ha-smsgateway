@@ -331,7 +331,10 @@ def _async_register_services(hass: HomeAssistant) -> None:
         chemins = call.data[ATTR_ATTACHMENTS]
 
         for chemin in chemins:
-            if not hass.config.is_allowed_path(chemin):
+            # is_allowed_path fait des E/S disque (resolve) : executor.
+            if not await hass.async_add_executor_job(
+                hass.config.is_allowed_path, chemin
+            ):
                 raise HomeAssistantError(
                     f"Chemin non autorisé: {chemin}. Ajouter son dossier à allowlist_external_dirs"
                 )
