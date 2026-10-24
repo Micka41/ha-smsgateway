@@ -55,6 +55,24 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 SAFE_NAME = re.compile(r"[^A-Za-z0-9._-]")
+
+# Nom produit par _write_attachments : AAAAMMJJ-HHMMSS_<index>_<nom>. La purge
+# ne touche qu'aux fichiers qui suivent ce motif, jamais au reste du dossier.
+FICHIER_INTEGRATION = re.compile(r"^\d{8}-\d{6}_\d+_.+")
+
+
+def media_dir_path(hass: HomeAssistant, relatif: str | None) -> str | None:
+    """Résoudre le dossier des pièces jointes, confiné au dossier de config.
+
+    L'option est un texte libre : un chemin absolu ou contenant ``..``
+    pourrait viser n'importe quel dossier du système. On refuse tout ce qui
+    sort de ``/config`` après résolution des liens symboliques.
+    """
+    racine = os.path.realpath(hass.config.config_dir)
+    cible = os.path.realpath(os.path.join(racine, relatif or ""))
+    if cible == racine or os.path.commonpath([racine, cible]) != racine:
+        return None
+    return cible
 IMAGE_TYPES = ("image/",)
 
 
@@ -147,7 +165,12 @@ def _write_attachments(
     keep = max(1, int(keep))
     try:
         fichiers = sorted(
-            (os.path.join(directory, f) for f in os.listdir(directory)),
+            (
+                os.path.join(directory, f)
+                for f in os.listdir(directory)
+                if FICHIER_INTEGRATION.match(f)
+                and os.path.isfile(os.path.join(directory, f))
+            ),
             key=os.path.getmtime,
             reverse=True,
         )
@@ -372,9 +395,16 @@ async def _async_dispatch(
         )
 
     elif event == EVENT_MMS_DOWNLOADED:
-        media_dir = hass.config.path(
-            entry.options.get(CONF_MEDIA_DIR, DEFAULT_MEDIA_DIR)
+        media_dir = media_dir_path(
+            hass, entry.options.get(CONF_MEDIA_DIR, DEFAULT_MEDIA_DIR)
         )
+        if media_dir is None:
+            _LOGGER.warning(
+                "Dossier des pièces jointes hors du dossier de configuration, "
+                "repli sur %s",
+                DEFAULT_MEDIA_DIR,
+            )
+            media_dir = hass.config.path(DEFAULT_MEDIA_DIR)
         # NumberSelector renvoie un float : sans conversion, le slice de purge
         # leve TypeError. Les options deja enregistrees sont concernees.
         try:

@@ -2,7 +2,7 @@ send_sms:
   fields:
     recipients:
       required: true
-      example: "+33612345678 ou {MICKA}"
+      example: "+33612345678 ou {PAPA}"
       selector:
         text:
           multiple: true
@@ -39,7 +39,7 @@ send_mms:
   fields:
     recipients:
       required: true
-      example: "+33612345678 ou {MICKA}"
+      example: "+33612345678 ou {PAPA}"
       selector:
         text:
           multiple: true

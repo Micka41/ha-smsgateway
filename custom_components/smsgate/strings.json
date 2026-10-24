@@ -60,12 +60,15 @@
         },
         "data_description": {
           "default_recipient": "Creates a notify entity that sends to this number.",
-          "media_dir": "Relative to the configuration folder.",
+          "media_dir": "Relative to the configuration folder, which it cannot leave. Only files written by the integration are pruned.",
           "webhook_url": "Leave empty to use the Home Assistant external URL. Must be HTTPS with a valid certificate: the secure app build rejects http:// and bare IP addresses.",
           "check_updates": "Queries the GitHub releases page every 12 hours. This is the integration's only outbound call — disable it to stay fully local.",
           "signing_key": "From the app, Settings > Webhooks > Signing Key. When set, incoming webhooks whose HMAC-SHA256 signature does not match are rejected. Leave empty to accept unsigned requests."
         }
       }
+    },
+    "error": {
+      "invalid_media_dir": "Attachment folder must be a relative path inside the Home Assistant configuration folder."
     }
   },
   "entity": {

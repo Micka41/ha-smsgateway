@@ -60,12 +60,15 @@
         },
         "data_description": {
           "default_recipient": "Crea un'entità notify che invia a questo numero.",
-          "media_dir": "Relativa alla cartella di configurazione.",
+          "media_dir": "Relativa alla cartella di configurazione, da cui non può uscire. Vengono eliminati solo i file scritti dall'integrazione.",
           "webhook_url": "Lasciare vuoto per usare l'URL esterno di Home Assistant. Deve essere HTTPS per la build sicura dell'app.",
           "check_updates": "Interroga la pagina delle release GitHub ogni 12 ore. È l'unica chiamata in uscita dell'integrazione — disattivarla per restare completamente locale.",
           "signing_key": "Nell'app, Impostazioni > Webhooks > Signing Key. Se impostata, i webhook con firma HMAC-SHA256 non corrispondente vengono rifiutati. Lasciare vuoto per accettare richieste non firmate."
         }
       }
+    },
+    "error": {
+      "invalid_media_dir": "La cartella degli allegati deve essere un percorso relativo all'interno della cartella di configurazione di Home Assistant."
     }
   },
   "entity": {

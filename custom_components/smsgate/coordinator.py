@@ -8,6 +8,7 @@ from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryAuthFailed
 from aiohttp import ClientError, ClientTimeout
 
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -50,7 +51,9 @@ class SmsGateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         try:
             health = await self.api.async_health()
         except SmsGateAuthError as err:
-            raise UpdateFailed(f"Authentification refusée: {err}") from err
+            # ConfigEntryAuthFailed déclenche le flux de réauthentification ;
+            # UpdateFailed ferait seulement réessayer indéfiniment.
+            raise ConfigEntryAuthFailed(f"Authentification refusée: {err}") from err
         except SmsGateError as err:
             raise UpdateFailed(str(err)) from err
 

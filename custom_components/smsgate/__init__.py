@@ -18,13 +18,13 @@ from homeassistant.const import (
     Platform,
 )
 from homeassistant.core import HomeAssistant, ServiceCall
-from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady, HomeAssistantError
+from homeassistant.exceptions import ConfigEntryNotReady, HomeAssistantError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.network import NoURLAvailableError
 
-from .api import SmsGateApi, SmsGateAuthError, SmsGateConnectionError, SmsGateError
+from .api import SmsGateApi, SmsGateConnectionError, SmsGateError
 from .recipients import RecipientError, async_resolve, invalidate_cache
 from .const import (
     ATTR_ATTACHMENTS,
@@ -106,12 +106,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: SmsGateConfigEntry) -> b
     )
 
     coordinator = SmsGateCoordinator(hass, entry, api)
-    try:
-        await coordinator.async_config_entry_first_refresh()
-    except ConfigEntryNotReady:
-        raise
-    except SmsGateAuthError as err:
-        raise ConfigEntryAuthFailed(str(err)) from err
+    # Le coordinator lève lui-même ConfigEntryAuthFailed sur des identifiants
+    # refusés : HA déclenche alors le flux de réauthentification.
+    await coordinator.async_config_entry_first_refresh()
 
     # Recherche de nouvelle version : seul appel sortant de l'intégration,
     # désactivable dans les options.
@@ -123,21 +120,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: SmsGateConfigEntry) -> b
 
     entry.runtime_data = SmsGateData(api=api, coordinator=coordinator, release=release)
 
-    # --- Webhook HA ----------------------------------------------------------
-    webhook_id = entry.data[CONF_WEBHOOK_ID]
-    webhook.async_register(
-        hass,
-        DOMAIN,
-        "SMSGateway",
-        webhook_id,
-        async_handle_webhook,
-        allowed_methods=["POST"],
-        local_only=True,
-    )
-
-    # --- Enregistrement côté application -------------------------------------
+    # --- Résolution de l'URL de retour --------------------------------------
     # L'application en build "secure" refuse toute URL non HTTPS : il faut donc
     # l'URL externe (reverse proxy + certificat valide), pas l'adresse interne.
+    # Résolue AVANT d'enregistrer le webhook HA : sinon un ConfigEntryNotReady
+    # laisserait le handler en place, et la nouvelle tentative échouerait sur
+    # « Handler is already defined » jusqu'au prochain redémarrage.
+    webhook_id = entry.data[CONF_WEBHOOK_ID]
     url = _resolve_webhook_url(hass, entry, webhook_id)
 
     if url is None:
@@ -155,6 +144,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: SmsGateConfigEntry) -> b
         )
 
     ir.async_delete_issue(hass, DOMAIN, f"webhook_url_{entry.entry_id}")
+
+    # --- Webhook HA ----------------------------------------------------------
+    webhook.async_register(
+        hass,
+        DOMAIN,
+        "SMSGateway",
+        webhook_id,
+        async_handle_webhook,
+        allowed_methods=["POST"],
+        local_only=True,
+    )
+    # Désenregistré par HA dès que l'entrée est déchargée, y compris quand une
+    # étape suivante du démarrage échoue et provoque une nouvelle tentative.
+    entry.async_on_unload(lambda: webhook.async_unregister(hass, webhook_id))
+
+    # --- Enregistrement côté application -------------------------------------
     await _async_sync_app_webhooks(hass, entry, url)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
@@ -242,7 +247,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: SmsGateConfigEntry) -> 
     if not unloaded:
         return False
 
-    webhook.async_unregister(hass, entry.data[CONF_WEBHOOK_ID])
+    # Le webhook HA est retiré par le callback async_on_unload posé au setup.
 
     # runtime_data est absent si l'entrée n'a jamais démarré — par exemple
     # après un échec au premier rafraîchissement. Sans cette garde, retirer

@@ -113,7 +113,7 @@ tard au premier MMS.
 | Option | Rôle |
 |---|---|
 | Destinataire par défaut | Crée l'entité `notify` visant ce numéro |
-| Dossier des pièces jointes | Relatif au dossier de configuration, `media/smsgate` par défaut |
+| Dossier des pièces jointes | Chemin relatif dans le dossier de configuration, `media/smsgate` par défaut. Seuls les fichiers écrits par l'intégration sont purgés |
 | Pièces jointes conservées | Rétention, les plus anciennes sont purgées |
 | URL de webhook forcée | Laisser vide pour utiliser l'URL externe de Home Assistant |
 | Clé de signature des webhooks | Dans l'application, Settings > Webhooks > Signing Key |

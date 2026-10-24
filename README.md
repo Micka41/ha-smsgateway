@@ -112,7 +112,7 @@ an explicit message rather than failing later on the first MMS.
 | Option | Purpose |
 |---|---|
 | Default recipient | Creates the `notify` entity targeting this number |
-| Attachment folder | Relative to the configuration folder, `media/smsgate` by default |
+| Attachment folder | Relative path inside the configuration folder, `media/smsgate` by default. Only files written by the integration are pruned |
 | Attachments to keep | Retention, oldest files are pruned |
 | Webhook URL override | Leave empty to use the Home Assistant external URL |
 | Webhook signing key | From the app, Settings > Webhooks > Signing Key |

@@ -1,7 +1,7 @@
 """Destinataires nommés, résolus depuis ``secrets.yaml``.
 
-Un alias ``{MICKA}`` écrit dans les services d'envoi est traduit par la valeur
-de la clé ``smsgate_micka`` de ``/config/secrets.yaml``. Les numéros restent
+Un alias ``{PAPA}`` écrit dans les services d'envoi est traduit par la valeur
+de la clé ``smsgate_papa`` de ``/config/secrets.yaml``. Les numéros restent
 donc hors de ``.storage``, tout en étant utilisables depuis l'éditeur visuel
 et les outils de développement, ce que ``!secret`` ne permet pas.
 

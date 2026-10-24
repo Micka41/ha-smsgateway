@@ -60,12 +60,15 @@
         },
         "data_description": {
           "default_recipient": "Crée une entité notify qui envoie vers ce numéro.",
-          "media_dir": "Relatif au dossier de configuration.",
+          "media_dir": "Relatif au dossier de configuration, qu'il ne peut pas quitter. Seuls les fichiers écrits par l'intégration sont purgés.",
           "webhook_url": "Laisser vide pour utiliser l'URL externe de Home Assistant. Doit etre en HTTPS avec un certificat valide : le build securise de l'application refuse http:// et les adresses IP nues.",
           "check_updates": "Interroge la page des releases GitHub toutes les 12 heures. C'est le seul appel sortant de l'intégration — à désactiver pour rester entièrement local.",
           "signing_key": "Dans l'application, Settings > Webhooks > Signing Key. Si renseignée, les webhooks dont la signature HMAC-SHA256 ne correspond pas sont rejetés. Laisser vide pour accepter les requêtes non signées."
         }
       }
+    },
+    "error": {
+      "invalid_media_dir": "Le dossier des pièces jointes doit être un chemin relatif situé dans le dossier de configuration de Home Assistant."
     }
   },
   "entity": {

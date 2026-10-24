@@ -60,12 +60,15 @@
         },
         "data_description": {
           "default_recipient": "Erstellt eine Notify-Entität für diese Nummer.",
-          "media_dir": "Relativ zum Konfigurationsordner.",
+          "media_dir": "Relativ zum Konfigurationsordner, den er nicht verlassen kann. Nur von der Integration geschriebene Dateien werden bereinigt.",
           "webhook_url": "Leer lassen, um die externe Home-Assistant-URL zu verwenden. Für den sicheren App-Build ist HTTPS erforderlich.",
           "check_updates": "Fragt alle 12 Stunden die GitHub-Releases ab. Dies ist der einzige ausgehende Aufruf der Integration — deaktivieren, um vollständig lokal zu bleiben.",
           "signing_key": "In der App unter Einstellungen > Webhooks > Signing Key. Wenn gesetzt, werden eingehende Webhooks mit falscher HMAC-SHA256-Signatur abgelehnt. Leer lassen, um unsignierte Anfragen zu akzeptieren."
         }
       }
+    },
+    "error": {
+      "invalid_media_dir": "Der Anhangsordner muss ein relativer Pfad innerhalb des Home-Assistant-Konfigurationsordners sein."
     }
   },
   "entity": {

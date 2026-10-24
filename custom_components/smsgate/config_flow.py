@@ -33,6 +33,7 @@ from homeassistant.helpers.selector import (
 )
 
 from .api import SmsGateApi, SmsGateAuthError, SmsGateConnectionError, SmsGateError
+from .webhook_handler import media_dir_path
 from .const import (
     CONF_CHECK_UPDATES,
     CONF_DEFAULT_RECIPIENT,
@@ -310,14 +311,23 @@ class SmsGateOptionsFlow(OptionsFlow):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Afficher et enregistrer les options."""
+        errors: dict[str, str] = {}
+
         if user_input is not None:
             nettoye = {k: v for k, v in user_input.items() if v not in (None, "")}
             # NumberSelector produit des float : on stocke des entiers.
             if CONF_KEEP_ATTACHMENTS in nettoye:
                 nettoye[CONF_KEEP_ATTACHMENTS] = int(nettoye[CONF_KEEP_ATTACHMENTS])
-            return self.async_create_entry(data=nettoye)
+            # La purge supprime des fichiers dans ce dossier : il doit rester
+            # dans le dossier de configuration de Home Assistant.
+            dossier = nettoye.get(CONF_MEDIA_DIR, DEFAULT_MEDIA_DIR)
+            if media_dir_path(self.hass, dossier) is None:
+                errors[CONF_MEDIA_DIR] = "invalid_media_dir"
+            else:
+                return self.async_create_entry(data=nettoye)
 
-        options = self.config_entry.options
+        # En cas d'erreur on réaffiche la saisie, pas les anciennes valeurs.
+        options = {**self.config_entry.options, **(user_input or {})}
         schema = vol.Schema(
             {
                 vol.Optional(
@@ -350,4 +360,4 @@ class SmsGateOptionsFlow(OptionsFlow):
                 ): TextSelector(TextSelectorConfig(type=TextSelectorType.PASSWORD)),
             }
         )
-        return self.async_show_form(step_id="init", data_schema=schema)
+        return self.async_show_form(step_id="init", data_schema=schema, errors=errors)
